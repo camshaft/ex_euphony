@@ -87,7 +87,10 @@ defmodule Musix.Scale do
               iv:   3,
               v:    4,
               vi:   5,
-              vii:  6}
+              vii:  6,
+              viii: 7,
+              ix:   8,
+              x:    9}
 
   def scale_interval(name, degree) when is_atom(degree) do
     name

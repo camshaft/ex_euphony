@@ -26,6 +26,34 @@ defmodule Test.Musix do
     |> play()
   end
 
+  test "dictaphone's lament" do
+    root = -(4 * 12) - 2
+    major = %Musix.Key{root: root, scale: :major}
+
+    r1 = [48, 8, 32] |> gen_event(:duration_64) |> hseq()
+
+    bass1 = fn() ->
+      d1 = [:v, :iv, :i] |> gen_event(:degree) |> hseq()
+      d2 = [:iii, :iv, :i] |> gen_event(:degree) |> hseq()
+
+      seq1 = d1 |> unify(r1) |> octave(3) |> apply_key(major)
+      seq2 = d2 |> unify(r1) |> octave(3) |> apply_key(major)
+
+      [seq1, seq2]
+      |> Stream.concat()
+    end
+
+    key1 = fn() ->
+      d1 = [:vii, :vi, :viii] |> gen_event(:degree) |> hseq()
+
+      d1 |> unify(r1) |> octave(3) |> apply_key(major)
+    end
+
+    [key1.(), bass1.()]
+    |> Stream.concat()
+    |> play()
+  end
+
   defp octave(stream, octave) do
     stream
     |> Stream.map(&put_in(&1, [:octave], octave))
@@ -47,12 +75,26 @@ defmodule Test.Musix do
   end
 
   defp play(%{props: %{duration_64: duration, pitch: pitch}} = event) do
-    IO.inspect event
-    args = ["-V1", "-qn", "synth", inspect(duration / 64), "sine", "%#{pitch}"]
+    args = ["-V1", "-qn", "synth", inspect(duration / 64 * 0.75), "sine", "%#{pitch}"]
+    |> IO.inspect
     System.cmd("play", args)
   end
   defp play(stream) do
     stream
     |> Enum.each(&play/1)
   end
+
+  # defp play(stream) do
+  #   {notes, delays} = stream
+  #   |> Enum.map_reduce(0, fn(%{props: %{duration_64: duration, pitch: pitch}}, acc) ->
+  #     duration = duration / 64
+  # {{[inspect(duration), "sine", "%#{pitch}"], [inspect(acc)]}, acc + duration}
+  #   end)
+  #   |> elem(0)
+  #   |> Enum.unzip()
+
+  #   args = ["-V1", "-qn", "synth" | notes ++ ["delay"] ++ delays]
+  #   |> :lists.flatten()
+  #   System.cmd("play", args)
+  # end
 end
