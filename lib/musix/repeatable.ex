@@ -10,11 +10,23 @@ defimpl Musix.Repeatable, for: Musix.Event do
   end
 end
 
-defimpl Musix.Repeatable, for: [Musix.HSeq, Musix.VSeq] do
-  def repeat(seq = %{elements: elements}, count) do
-    elements = Enum.flat_map(1..count, fn(_) ->
+defimpl Musix.Repeatable, for: Musix.VSeq do
+  def repeat(seq, count) do
+    elements = Stream.flat_map(1..count, fn(_) ->
+      seq
+    end)
+    %Musix.HSeq{elements: elements}
+  end
+end
+
+defimpl Musix.Repeatable, for: [List, Musix.HSeq] do
+  def repeat(%{elements: elements}, count) do
+    repeat(elements, count)
+  end
+  def repeat(elements, count) do
+    elements = Stream.flat_map(1..count, fn(_) ->
       elements
     end)
-    %{seq | elements: elements}
+    %Musix.HSeq{elements: elements}
   end
 end

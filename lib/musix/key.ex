@@ -2,14 +2,38 @@ defmodule Musix.Key do
   defstruct [root: 0,
              scale: :major]
 
-  alias Musix.Scale
+  alias Musix.{ChromaticNote,Scale}
 
-  def degree_to_pitch(key, %Musix.Event{props: %{degree: degree} = props} = event) do
-    octave = Map.get(props, :octave, 0)
-    pitch = degree_to_pitch(key, degree) + (octave * 12)
-    %{event | props: Map.put(props, :pitch, pitch)}
+  def new(name, scale \\ :major)
+
+  def new(root, scale) when is_atom(root) or is_binary(root) or is_integer(root) do
+    root
+    |> ChromaticNote.new()
+    |> new(scale)
   end
-  def degree_to_pitch(%{root: root, scale: scale}, degree) when is_atom(degree) or is_integer(degree) do
-    root + Scale.scale_interval(scale, degree)
+  def new(root, scale) do
+    %__MODULE__{
+      root: root,
+      scale: Scale.new(scale)
+    }
+  end
+
+  def position(%{root: root, scale: scale}, offset) do
+    position = Scale.position(scale, offset)
+    Musix.Shiftable.shift(root, position)
+  end
+end
+
+defimpl Inspect, for: Musix.Key do
+  import Inspect.Algebra
+
+  def inspect(%{root: root, scale: scale}, opts) do
+    concat([
+      "#Musix.Key<",
+      @protocol.inspect(root, opts),
+      " ",
+      @protocol.inspect(scale, opts),
+      ">"
+    ])
   end
 end

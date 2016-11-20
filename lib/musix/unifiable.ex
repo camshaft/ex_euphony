@@ -19,6 +19,8 @@ end
 
 defimpl Musix.Unifiable, for: [Musix.HSeq, Musix.VSeq] do
   def unify(%{elements: a}, %{elements: b}) do
+    a = Enum.to_list(a)
+    b = Enum.to_list(b)
     %@for{elements: unify(a, b, [])}
   end
 

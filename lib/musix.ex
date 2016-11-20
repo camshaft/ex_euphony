@@ -24,4 +24,28 @@ defmodule Musix do
   def unify(a, b) do
     Musix.Unifiable.unify(a, b)
   end
+
+  def sequence(seq, start \\ 0) do
+    {seq, _end} = Musix.Sequencable.sequence(seq, start)
+    :lists.flatten(seq)
+  end
+
+  def cascade(element, props) when is_map(props) do
+    %Musix.Cascade{element: element, props: props}
+  end
+  def cascade(element, props) do
+    cascade(element, Enum.into(props, %{}))
+  end
+
+  def apply_cascade(elements, data \\ %{}) do
+    Musix.Cascadable.cascade(elements, data)
+  end
+
+  def key(root, scale \\ :major) do
+    Musix.Key.new(root, scale)
+  end
+
+  def shift(value, units) do
+    Musix.Shiftable.shift(value, units)
+  end
 end

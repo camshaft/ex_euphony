@@ -3,65 +3,49 @@ defmodule Test.Musix do
 
   import Musix
 
-  test "game of thrones" do
-    root = -(4 * 12) + 2
-    major = %Musix.Key{root: root, scale: :major}
-    minor = %Musix.Key{root: root, scale: :minor}
+  @degrees [:i, :ii, :iii, :iv, :v, :vi, :vii]
 
-    motive_degrees = [:v, :i, :iii, :iv] |> gen_event(:degree) |> hseq()
+  # test "generate song" do
+  #   root = Musix.ChromaticNote.list() |> Enum.shuffle() |> Enum.take(1) |> hd()
+  #
+  #   count = 6
+  #
+  #   degrees = 1..count |> Enum.map(fn(_) -> gen_degree() end) |> gen_event(:degree) |> hseq()
+  #
+  #   rhythm = 1..count |> Enum.map(fn(_) -> gen_duration() end) |> gen_event(:duration) |> hseq()
+  #
+  #   motive = degrees |> unify(rhythm)
+  #
+  #   Musix.Scale.list()
+  #   |> Enum.shuffle()
+  #   |> Enum.take(2)
+  #   |> Enum.map(fn(name) ->
+  #     motive |> cascade(key: key(root, name))
+  #   end)
+  #   |> repeat(4)
+  #   |> hseq()
+  #   |> cascade(bpm: 180)
+  #   |> prepare()
+  #   |> play()
+  # end
 
-    motive_rhythm_1 = [16, 16, 8, 8] |> gen_event(:duration_64) |> hseq()
-    motive_rhythm_2 = [48, 8, 32, 8] |> dup_values() |> gen_event(:duration_64) |> hseq()
-
-    motive_1 = motive_degrees |> unify(motive_rhythm_1)
-    motive_2 = motive_degrees |> repeat() |> unify(motive_rhythm_2)
-
-    seq1 = motive_1 |> repeat(4) |> octave(5) |> apply_key(minor)
-    seq2 = motive_1 |> repeat(4) |> octave(5) |> apply_key(major)
-    seq3 = motive_2 |> octave(4) |> apply_key(minor)
-    seq4 = motive_1 |> repeat(4) |> octave(4) |> apply_key(%{minor | root: root - 5})
-
-    [seq1, seq2, seq3, seq4]
-    |> Stream.concat()
-    |> play()
+  defp gen_duration() do
+    den = :math.pow(2, :rand.uniform(4)) |> trunc()
+    num = :rand.uniform(den - 1)
+    {num, den}
   end
 
-  test "dictaphone's lament" do
-    root = -(4 * 12) - 2
-    major = %Musix.Key{root: root, scale: :major}
-
-    r1 = [48, 8, 32] |> gen_event(:duration_64) |> hseq()
-
-    bass1 = fn() ->
-      d1 = [:v, :iv, :i] |> gen_event(:degree) |> hseq()
-      d2 = [:iii, :iv, :i] |> gen_event(:degree) |> hseq()
-
-      seq1 = d1 |> unify(r1) |> octave(3) |> apply_key(major)
-      seq2 = d2 |> unify(r1) |> octave(3) |> apply_key(major)
-
-      [seq1, seq2]
-      |> Stream.concat()
-    end
-
-    key1 = fn() ->
-      d1 = [:vii, :vi, :viii] |> gen_event(:degree) |> hseq()
-
-      d1 |> unify(r1) |> octave(3) |> apply_key(major)
-    end
-
-    [key1.(), bass1.()]
-    |> Stream.concat()
-    |> play()
+  defp gen_degree() do
+    @degrees
+    |> Enum.shuffle()
+    |> hd()
   end
 
-  defp octave(stream, octave) do
-    stream
-    |> Stream.map(&put_in(&1, [:octave], octave))
-  end
-
-  defp apply_key(stream, key) do
-    stream
-    |> Stream.map(&Musix.Key.degree_to_pitch(key, &1))
+  defp prepare(seq) do
+    seq
+    |> apply_cascade()
+    |> sequence()
+    |> Enum.to_list()
   end
 
   defp dup_values(stream) do
@@ -71,30 +55,43 @@ defmodule Test.Musix do
 
   defp gen_event(stream, key) do
     stream
-    |> Enum.map(&event(%{key => &1}))
+    |> Stream.map(&event(%{key => &1}))
   end
 
-  defp play(%{props: %{duration_64: duration, pitch: pitch}} = event) do
-    args = ["-V1", "-qn", "synth", inspect(duration / 64 * 0.75), "sine", "%#{pitch}"]
-    |> IO.inspect
+  defp play(%{props: %{duration_ps: duration, note: %{position: p, octave: o}}} = event) do
+    inspect_event(event)
+    pitch = (o - 5) * 12 + (p + 3)
+    duration = (duration / 1.5e12) |> to_string()
+    args = ["-V1", "-qn", "synth", duration, "pluck", "%#{pitch}"]
+    # |> IO.inspect
     System.cmd("play", args)
   end
-  defp play(stream) do
+  defp play(%{props: %{duration: _, degree: d, key: k} = props} = event) do
+    %{event | props: Map.merge(props, %{
+      duration_ps: props[:duration_ps] || Musix.Duration.to_picosecond(put_in(event, [:bpm], 150)),
+      note: Musix.Key.position(k, d)
+    })}
+    |> play()
+  end
+  defp play(%{props: %{duration: _} = props} = event) do
+    %{event | props: Map.merge(props, %{
+      duration_ps: props[:duration_ps] || Musix.Duration.to_picosecond(put_in(event, [:bpm], 150)),
+      # note: Musix.Key.position(k, d)
+    })}
+    |> play()
+  end
+  defp play([note, [num, den]]) do
+    %{note: Musix.ChromaticNote.new(note),
+      duration: {num, den}, bpm: 150}
+    |> event()
+    |> play()
+  end
+  defp play(stream) when is_list(stream) do
     stream
     |> Enum.each(&play/1)
   end
 
-  # defp play(stream) do
-  #   {notes, delays} = stream
-  #   |> Enum.map_reduce(0, fn(%{props: %{duration_64: duration, pitch: pitch}}, acc) ->
-  #     duration = duration / 64
-  # {{[inspect(duration), "sine", "%#{pitch}"], [inspect(acc)]}, acc + duration}
-  #   end)
-  #   |> elem(0)
-  #   |> Enum.unzip()
-
-  #   args = ["-V1", "-qn", "synth" | notes ++ ["delay"] ++ delays]
-  #   |> :lists.flatten()
-  #   System.cmd("play", args)
-  # end
+  defp inspect_event(%{props: %{note: note, duration: {num, den}}}) do
+    IO.puts inspect([to_string(note), [num, den]], charlists: :as_lists) <> ","
+  end
 end

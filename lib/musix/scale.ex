@@ -1,4 +1,6 @@
 defmodule Musix.Scale do
+  defstruct [:name, :positions]
+
   ionian_sequence     = [2, 2, 1, 2, 2, 2, 1]
   hex_sequence        = [2, 2, 1, 2, 2, 3]
   pentatonic_sequence = [3, 2, 2, 3, 2]
@@ -81,59 +83,88 @@ defmodule Musix.Scale do
              chinese:            [4, 2, 1, 4, 1],
              lydian_minor:       [2, 2, 2, 1, 1, 2, 2]}
 
-  degrees = %{i:    0,
-              ii:   1,
-              iii:  2,
-              iv:   3,
-              v:    4,
-              vi:   5,
-              vii:  6,
-              viii: 7,
-              ix:   8,
-              x:    9}
-
-  def scale_interval(name, degree) when is_atom(degree) do
-    name
-    |> scale_interval(degree_to_i(degree))
+  def new(intervals) when is_list(intervals) do
+    [[0], intervals]
+    |> Stream.concat()
+    |> Stream.drop(-1)
+    |> Enum.scan(&(&1 + &2))
+    |> :erlang.list_to_tuple()
+    |> new()
+  end
+  def new(positions) when is_tuple(positions) do
+    %Musix.Scale{positions: positions}
   end
 
   for {name, seq} <- scales do
-    def scale(unquote(name)) do
-      unquote(seq)
+    def new(unquote(name)) do
+      %Musix.Scale{
+        name: unquote(name),
+        positions: unquote(
+          [[0], seq]
+          |> Stream.concat()
+          |> Stream.drop(-1)
+          |> Enum.scan(&(&1 + &2))
+          |> :erlang.list_to_tuple()
+          |> Macro.escape()
+        )
+      }
     end
 
     def unquote(name)() do
-      scale(unquote(name))
-    end
-
-    {count, 12} = Enum.reduce(seq, {0, 0}, fn(item, {count, acc}) ->
-      def scale_interval(unquote(name), unquote(count)) do
-        unquote(acc)
-      end
-      {count + 1, item + acc}
-    end)
-
-    def scale_interval(unquote(name), count) when count >= unquote(count) do
-      times = div(count, unquote(count))
-      (times * 12) + scale_interval(unquote(name), rem(count, unquote(count)))
+      new(unquote(name))
     end
   end
 
-  def scale_interval(seq, offset) when not is_atom(seq) do
-    seq
-    |> Stream.take(offset)
-    |> Enum.reduce(0, fn(item, acc) ->
-      item + acc
-    end)
+  for offset <- 0..999 do
+    degree_bin = RomanNumerals.encode(offset + 1)
+    lower_bin = degree_bin |> String.downcase()
+    values = [
+      degree_bin,
+      degree_bin |> String.to_atom(),
+      lower_bin,
+      lower_bin |> String.to_atom()
+    ]
+    def position(scale, degree) when degree in unquote(values) do
+      position(scale, unquote(offset))
+    end
+  end
+  def position(scale, degree) when is_binary(degree) do
+    offset = (degree |> String.upcase |> RomanNumerals.decode) + 1
+    position(scale, offset)
   end
 
-  for {degree, i} <- degrees do
-    def degree_to_i(unquote(degree)) do
-      unquote(i)
-    end
+  def position(%{positions: positions}, offset) when is_integer(offset) do
+    size = tuple_size(positions)
 
-    def i_to_degree(unquote(i)) do
-      unquote(degree)
+    i = offset
+    |> rem(size)
+    |> abs()
+
+    elem(positions, i) + (12 * div(offset, size))
+  end
+
+  def size(%{positions: positions}) do
+    tuple_size(positions)
+  end
+
+  def list() do
+    unquote(Map.keys(scales))
+  end
+
+  defimpl Inspect do
+    import Inspect.Algebra
+
+    def inspect(%{name: name}, _opts) when not is_nil(name) do
+      "#Musix.Scale<#{name}>"
+    end
+    def inspect(%{positions: positions}, opts) do
+      concat([
+        "#Musix.Scale<",
+        positions
+          |> Enum.scan(&(&2 - &1))
+          |> @protocol.inspect(opts),
+        ">"
+      ])
     end
   end
 end

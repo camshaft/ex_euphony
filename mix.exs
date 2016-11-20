@@ -7,6 +7,7 @@ defmodule Musix.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     compilers: Mix.compilers ++ [:multix],
      deps: deps()]
   end
 
@@ -15,6 +16,8 @@ defmodule Musix.Mixfile do
   end
 
   defp deps do
-    []
+    [{:decimal, "~> 1.0"},
+     {:multix, github: "camshaft/multix"},
+     {:roman_numerals, "~> 1.0"}]
   end
 end

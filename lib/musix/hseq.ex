@@ -3,7 +3,7 @@ defmodule Musix.HSeq do
 end
 
 defimpl Collectable, for: Musix.HSeq do
-  def into(orig = %{elements: elements}) do
+  def into(%{elements: elements} = orig) do
     {[], fn
       (acc, {:cont, x}) ->
         [x | acc]
