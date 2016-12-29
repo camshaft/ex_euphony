@@ -3,11 +3,9 @@ defmodule Test.Musix do
 
   import Musix
 
-  @degrees [:i, :ii, :iii, :iv, :v, :vi, :vii]
+  @degrees [:i, :iii, :iv, :v, :vi, :vii]
 
   # test "generate song" do
-  #   root = Musix.ChromaticNote.list() |> Enum.shuffle() |> Enum.take(1) |> hd()
-  #
   #   count = 6
   #
   #   degrees = 1..count |> Enum.map(fn(_) -> gen_degree() end) |> gen_event(:degree) |> hseq()
@@ -15,6 +13,8 @@ defmodule Test.Musix do
   #   rhythm = 1..count |> Enum.map(fn(_) -> gen_duration() end) |> gen_event(:duration) |> hseq()
   #
   #   motive = degrees |> unify(rhythm)
+  #
+  #   root = Musix.ChromaticNote.list() |> Enum.shuffle() |> Enum.take(1) |> hd()
   #
   #   Musix.Scale.list()
   #   |> Enum.shuffle()

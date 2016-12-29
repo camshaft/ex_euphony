@@ -12,11 +12,11 @@ defmodule Musix.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :ratio, :roman_numerals]]
   end
 
   defp deps do
-    [{:decimal, "~> 1.0"},
+    [{:ratio, "~> 1.2.0"},
      {:multix, github: "camshaft/multix"},
      {:roman_numerals, "~> 1.0"}]
   end

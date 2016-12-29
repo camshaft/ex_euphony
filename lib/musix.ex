@@ -41,10 +41,6 @@ defmodule Musix do
     Musix.Cascadable.cascade(elements, data)
   end
 
-  def key(root, scale \\ :major) do
-    Musix.Key.new(root, scale)
-  end
-
   def shift(value, units) do
     Musix.Shiftable.shift(value, units)
   end

@@ -4,7 +4,7 @@ defmodule Test.Musix.Scale do
   alias Musix.Scale
 
   test "major degrees" do
-    scale = Scale.new(:major)
+    scale = :major
     assert 0  == scale |> Scale.position(:i)
     assert 2  == scale |> Scale.position(:ii)
     assert 4  == scale |> Scale.position(:iii)
@@ -16,7 +16,7 @@ defmodule Test.Musix.Scale do
   end
 
   test "major offset" do
-    scale = Scale.new(:major)
+    scale = :major
     assert 0  == scale |> Scale.position(0)
     assert 2  == scale |> Scale.position(1)
     assert 4  == scale |> Scale.position(2)

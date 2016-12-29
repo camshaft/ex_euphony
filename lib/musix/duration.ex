@@ -11,16 +11,16 @@ defdispatch Musix.Duration, for: %Musix.Event{props: %{duration_ps: _}} do
 end
 
 defdispatch Musix.Duration, for: %Musix.Event{props: %{duration: {_, _}, bpm: _}} do
-  alias Decimal, as: D
+  alias Numbers, as: N
 
-  @picseconds_in_a_minute 6.0e+13 |> trunc() |> D.new()
-  @base D.mult(D.new(4), @picseconds_in_a_minute)
+  @picseconds_in_a_minute 6.0e+13 |> trunc()
+  @base N.mult(4, @picseconds_in_a_minute)
 
   def to_picosecond(%{props: %{duration: {num, den}, bpm: bpm}}) do
     @base
-    |> D.mult(D.new(num))
-    |> D.div(D.mult(D.new(den), D.new(bpm)))
-    |> D.to_float()
+    |> N.mult(num)
+    |> N.div(N.mult(den, bpm))
+    |> N.to_float()
     |> trunc()
   end
 end
