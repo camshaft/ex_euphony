@@ -1,4 +1,4 @@
-defmodule Musix.ChromaticNote do
+defmodule Euphony.ChromaticNote do
   defstruct [:position, :octave]
 
   notes = %{
@@ -102,7 +102,7 @@ defmodule Musix.ChromaticNote do
 
   defimpl Inspect do
     def inspect(note, _opts) do
-      "#Musix.ChromaticNote<#{note}>"
+      "#Euphony.ChromaticNote<#{note}>"
     end
   end
 

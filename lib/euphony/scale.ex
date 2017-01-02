@@ -1,5 +1,5 @@
-defmodule Musix.Scale do
-  alias :musix_scale, as: T
+defmodule Euphony.Scale do
+  alias :euphony_scale, as: T
 
   def db() do
     T.db()

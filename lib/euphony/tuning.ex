@@ -1,5 +1,5 @@
-defmodule Musix.Tuning do
-  alias :musix_tuning, as: T
+defmodule Euphony.Tuning do
+  alias :euphony_tuning, as: T
   alias Numbers, as: N
 
   def db() do

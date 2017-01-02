@@ -1,4 +1,4 @@
--module(musix_scale).
+-module(euphony_scale).
 -export([db/0, resolve/1]).
 db() -> #{
     '9_limit_consonant_whole_tone' => #{22=>{0,4,7,11,15,18}},

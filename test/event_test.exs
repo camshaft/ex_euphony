@@ -1,7 +1,5 @@
-defmodule Test.Musix.Event do
-  use ExUnit.Case
-
-  import Musix
+defmodule Test.Euphony.Event do
+  use Test.Euphony.Case
 
   test "access" do
     event = event(%{foo: 1})

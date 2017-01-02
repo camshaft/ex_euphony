@@ -1,26 +1,24 @@
-defmodule Test.Musix.Duration do
-  use ExUnit.Case
-
-  import Musix
-  alias Musix.Duration
+defmodule Test.Euphony.Duration do
+  use Test.Euphony.Case
+  alias Euphony.Duration
 
   test ":duration_ps" do
-    assert 123 = event(%{duration_ps: 123}) |> Duration.to_picosecond()
+    assert 123 = event(%{duration_s: 123}) |> Duration.to_seconds()
   end
 
   test "duration: 1/4" do
-    assert 500_000_000_000 = event(%{duration: {1, 4}}) |> Duration.to_picosecond()
+    assert 1 / 2 == event(%{duration: 1 / 4}) |> Duration.to_seconds()
   end
 
   test "duration: 1/8" do
-    assert 250_000_000_000 = event(%{duration: {1, 8}}) |> Duration.to_picosecond()
+    assert 1 / 4 == event(%{duration: 1 / 8}) |> Duration.to_seconds()
   end
 
   test "duration: 3/8" do
-    assert 750_000_000_000 = event(%{duration: {3, 8}}) |> Duration.to_picosecond()
+    assert 3 / 4 == event(%{duration: 3 / 8}) |> Duration.to_seconds()
   end
 
   test "duration: 1/4, :bpm" do
-    assert 600_000_000_000 = event(%{duration: {1, 4}, bpm: 100}) |> Duration.to_picosecond()
+    assert 3 / 5 == event(%{duration: 1 / 4, tempo: 100}) |> Duration.to_seconds()
   end
 end

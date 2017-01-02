@@ -1,7 +1,5 @@
-defmodule Test.Musix do
-  use ExUnit.Case
-
-  import Musix
+defmodule Test.Euphony do
+  use Test.Euphony.Case
 
   @degrees [:i, :iii, :iv, :v, :vi, :vii]
 
@@ -14,9 +12,9 @@ defmodule Test.Musix do
   #
   #   motive = degrees |> unify(rhythm)
   #
-  #   root = Musix.ChromaticNote.list() |> Enum.shuffle() |> Enum.take(1) |> hd()
+  #   root = Euphony.ChromaticNote.list() |> Enum.shuffle() |> Enum.take(1) |> hd()
   #
-  #   Musix.Scale.list()
+  #   Euphony.Scale.list()
   #   |> Enum.shuffle()
   #   |> Enum.take(2)
   #   |> Enum.map(fn(name) ->
@@ -68,20 +66,20 @@ defmodule Test.Musix do
   end
   defp play(%{props: %{duration: _, degree: d, key: k} = props} = event) do
     %{event | props: Map.merge(props, %{
-      duration_ps: props[:duration_ps] || Musix.Duration.to_picosecond(put_in(event, [:bpm], 150)),
-      note: Musix.Key.position(k, d)
+      duration_ps: props[:duration_ps] || Euphony.Duration.to_picosecond(put_in(event, [:bpm], 150)),
+      note: Euphony.Key.position(k, d)
     })}
     |> play()
   end
   defp play(%{props: %{duration: _} = props} = event) do
     %{event | props: Map.merge(props, %{
-      duration_ps: props[:duration_ps] || Musix.Duration.to_picosecond(put_in(event, [:bpm], 150)),
-      # note: Musix.Key.position(k, d)
+      duration_ps: props[:duration_ps] || Euphony.Duration.to_picosecond(put_in(event, [:bpm], 150)),
+      # note: Euphony.Key.position(k, d)
     })}
     |> play()
   end
   defp play([note, [num, den]]) do
-    %{note: Musix.ChromaticNote.new(note),
+    %{note: Euphony.ChromaticNote.new(note),
       duration: {num, den}, bpm: 150}
     |> event()
     |> play()

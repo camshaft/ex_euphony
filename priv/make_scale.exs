@@ -76,7 +76,7 @@ scales = Enum.reduce(scales, %{}, fn({name, tuple}, acc) ->
 end)
 
 module = [
-  "-module(musix_scale).",
+  "-module(euphony_scale).",
   "-export([db/0, resolve/1]).",
   "db() -> \#{",
     scales
@@ -109,4 +109,4 @@ module = [
 |> Enum.join("\n")
 
 File.mkdir_p!("src")
-File.write!("src/musix_scale.erl", module)
+File.write!("src/euphony_scale.erl", module)

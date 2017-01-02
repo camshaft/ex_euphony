@@ -1,13 +1,13 @@
-defmodule Musix.Mixfile do
+defmodule Euphony.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :musix,
+    [app: :euphony,
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     compilers: Mix.compilers ++ [:multix],
+     compilers: Mix.compilers,
      deps: deps()]
   end
 

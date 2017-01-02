@@ -1,9 +1,9 @@
-defmodule Musix.HSeq do
+defmodule Euphony.VSeq do
   defstruct [elements: []]
 end
 
-defimpl Collectable, for: Musix.HSeq do
-  def into(%{elements: elements} = orig) do
+defimpl Collectable, for: Euphony.VSeq do
+  def into(orig = %{elements: elements}) do
     {[], fn
       (acc, {:cont, x}) ->
         [x | acc]
@@ -15,7 +15,7 @@ defimpl Collectable, for: Musix.HSeq do
   end
 end
 
-defimpl Enumerable, for: Musix.HSeq do
+defimpl Enumerable, for: Euphony.VSeq do
   def count(_) do
     {:error, __MODULE__}
   end

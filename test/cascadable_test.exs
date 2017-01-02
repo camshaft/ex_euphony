@@ -1,7 +1,5 @@
-defmodule Test.Musix.Cascadable do
-  use ExUnit.Case
-
-  import Musix
+defmodule Test.Euphony.Cascadable do
+  use Test.Euphony.Case
 
   test "cascade" do
     events = hseq([
@@ -12,7 +10,6 @@ defmodule Test.Musix.Cascadable do
       event(%{foo: 1})
     ])
     |> cascade(%{bar: 2})
-    |> apply_cascade()
     |> sequence()
 
     assert [%{bar: 1}, %{bar: 2}, %{bar: 2, foo: 1}] = events |> Enum.map(&(&1.props))

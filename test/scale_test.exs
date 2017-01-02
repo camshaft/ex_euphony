@@ -1,7 +1,7 @@
-defmodule Test.Musix.Scale do
-  use ExUnit.Case
+defmodule Test.Euphony.Scale do
+  use Test.Euphony.Case
 
-  alias Musix.Scale
+  alias Euphony.Scale
 
   test "major degrees" do
     scale = :major

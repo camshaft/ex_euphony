@@ -1,4 +1,10 @@
-defmodule Musix.Chord do
+defmodule Euphony.Chord do
+  defstruct [:name, :intervals, :scale_size]
+
+  defmodule Euphony.Chord.Set do
+    defstruct [:name, :scale_intervals]
+  end
+
   chords = %{
     triad: %{7 => [0, 2, 4]},
     sixth: %{7 => [0, 2, 4, 5]},

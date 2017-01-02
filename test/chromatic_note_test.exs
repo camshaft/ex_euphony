@@ -1,7 +1,7 @@
-defmodule Test.Musix.ChromaticNote do
-  use ExUnit.Case
+defmodule Test.Euphony.ChromaticNote do
+  use Test.Euphony.Case
 
-  alias Musix.ChromaticNote, as: Note
+  alias Euphony.ChromaticNote, as: Note
 
   test ":C" do
     assert %{position: 0, octave: 4} = Note.new(:C)

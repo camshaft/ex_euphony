@@ -69,7 +69,7 @@ end)
 )
 
 module = [
-  "-module(musix_tuning).",
+  "-module(euphony_tuning).",
   "-export([db/0]).",
   "db() -> \#{",
     scales
@@ -83,4 +83,4 @@ module = [
 |> Enum.join("\n")
 
 File.mkdir_p!("src")
-File.write!("src/musix_tuning.erl", module)
+File.write!("src/euphony_tuning.erl", module)
