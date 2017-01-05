@@ -1,3 +1,6 @@
+use Multix
+use Euphony.Math
+
 defmodule Euphony.ChromaticNote do
   defstruct [:position, :octave]
 
@@ -46,7 +49,7 @@ defmodule Euphony.ChromaticNote do
     {v, o} =
       cond do
         v == -1 ->
-          {11, octave - 1}
+          {11, Kernel.-(octave, 1)}
         true ->
           {v, octave}
       end
@@ -94,6 +97,39 @@ defmodule Euphony.ChromaticNote do
   end
   def new(position, octave) when is_integer(position) and is_integer(octave) do
     new(octave * 12 + position)
+  end
+
+  alias Euphony.Math
+  for method <- [:add, :sub, :mult, :div] do
+    defmulti Math.unquote(method)(
+      %__MODULE__{octave: a_o, position: a_p},
+      %__MODULE__{octave: b_o, position: b_p}
+    ) do
+      %__MODULE__{
+        octave: Math.unquote(method)(a_o, b_o),
+        position: Math.unquote(method)(a_p, b_p)
+      }
+    end
+
+    defmulti Math.unquote(method)(
+      %__MODULE__{octave: o, position: p},
+      num
+    ) do
+      Math.unquote(method)(o * 12 + p, num)
+      |> new()
+    end
+
+    defmulti Math.unquote(method)(
+      num,
+      %__MODULE__{octave: o, position: p}
+    ) do
+      Math.unquote(method)(num, o * 12 + p)
+      |> new()
+    end
+  end
+
+  defmulti Math.to_float(%{octave: o, position: p}) do
+    o * 12 + p
   end
 
   def list do

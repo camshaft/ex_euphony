@@ -1,6 +1,25 @@
+use Multix
+
 defmodule Euphony.Tuning do
+  defstruct [:name, :intervals]
   alias :euphony_tuning, as: T
-  alias Numbers, as: N
+  alias Euphony.Math, as: M
+
+  defmulti tuning(name), priority: -1 do
+    case fetch(name) do
+      {:ok, intervals} ->
+        %__MODULE__{
+          name: name,
+          intervals: intervals
+        }
+      _ ->
+        raise ArgumentError, "#{inspect(name)} tuning not found"
+    end
+  end
+
+  def size(%{intervals: i}) do
+    tuple_size(i)
+  end
 
   def db() do
     T.db()
@@ -22,6 +41,9 @@ defmodule Euphony.Tuning do
         raise ArgumentError, message: "invalid tuning: #{name}"
     end
   end
+  def to_freq(%__MODULE__{intervals: i}, base, idx) do
+    to_freq(i, base, idx)
+  end
   def to_freq(scale, base, idx) when is_tuple(scale) do
     count = tuple_size(scale)
     r = rem(idx, count)
@@ -29,15 +51,15 @@ defmodule Euphony.Tuning do
       o when r >= 0 -> o
       o -> o - 1
     end
-    octave_pos = :math.pow(scale |> elem(count - 1) |> N.to_float(), octave)
-    freq = base |> N.mult(octave_pos) |> N.to_float()
+    octave_pos = :math.pow(scale |> elem(count - 1) |> M.to_float(), octave)
+    freq = base |> M.mult(octave_pos) |> M.to_float()
     case r do
       0 ->
         1
       degree when degree >= 0 ->
-        scale |> elem(degree - 1) |> Ratio.to_float()
+        scale |> elem(degree - 1) |> M.to_float()
       degree ->
-        scale |> elem(count + degree - 1) |> Ratio.to_float()
+        scale |> elem(count + degree - 1) |> M.to_float()
     end * freq
   end
 end

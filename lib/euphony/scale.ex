@@ -1,5 +1,20 @@
+use Multix
+
 defmodule Euphony.Scale do
   alias :euphony_scale, as: T
+  defstruct [name: nil, intervals: nil]
+
+  defmulti scale(%__MODULE__{} = s) do
+    s
+  end
+  defmulti scale(name), priority: -1 do
+    case fetch(name) do
+      {:ok, intervals} ->
+        %__MODULE__{name: name, intervals: intervals}
+      _ ->
+        raise ArgumentError, "#{inspect(name)} scale not found"
+    end
+  end
 
   def db() do
     T.db()
@@ -50,14 +65,17 @@ defmodule Euphony.Scale do
   def position(name, degree, tuning_size) when is_atom(name) do
     case fetch(name) do
       {:ok, scales} ->
-        case Map.fetch(scales, tuning_size) do
-          {:ok, scale} ->
-            position(scale, degree, tuning_size, 1)
-          _ ->
-            find_compatible_scale(scales, degree, tuning_size)
-        end
+        position(%__MODULE__{intervals: scales}, degree, tuning_size)
       _ ->
         raise ArgumentError, message: "invalid scale: #{name}"
+    end
+  end
+  def position(%__MODULE__{intervals: scales}, degree, tuning_size) do
+    case Map.fetch(scales, tuning_size) do
+      {:ok, scale} ->
+        position(scale, degree, tuning_size, 1)
+      _ ->
+        find_compatible_scale(scales, degree, tuning_size)
     end
   end
   def position(scale, degree, tuning_size) do

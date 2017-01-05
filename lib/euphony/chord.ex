@@ -1,8 +1,19 @@
-defmodule Euphony.Chord do
-  defstruct [:name, :intervals, :scale_size]
+use Multix
+alias Euphony.Math
 
-  defmodule Euphony.Chord.Set do
-    defstruct [:name, :scale_intervals]
+defmodule Euphony.Chord do
+  defstruct [name: nil, intervals: nil, value: %Euphony.Event{}]
+
+  defmulti chord(name), priority: -1 do
+    case fetch(name) do
+      {:ok, intervals} ->
+        %__MODULE__{
+          name: name,
+          intervals: intervals
+        }
+      _ ->
+        raise ArgumentError, "#{inspect(name)} chord not found"
+    end
   end
 
   chords = %{
@@ -14,7 +25,7 @@ defmodule Euphony.Chord do
   }
   |> Stream.map(fn({name, scales}) ->
     {name, Enum.reduce(scales, %{}, fn({size, degrees}, acc) ->
-      degrees = Enum.map(degrees, &Ratio.new(&1, size))
+      degrees = Enum.map(degrees, &Math.div(&1, size))
       Map.put(acc, size, degrees)
     end)}
   end)
@@ -63,5 +74,19 @@ defmodule Euphony.Chord do
   def invert(degrees, _count) do
     # TODO
     degrees
+  end
+
+  defimpl Enumerable do
+    def count(_) do
+      {:error, __MODULE__}
+    end
+
+    def member?(_, _) do
+      {:error, __MODULE__}
+    end
+
+    def reduce(%{intervals: %{7 => intervals}}, acc, fun) do
+      Enumerable.reduce(intervals, acc, fun)
+    end
   end
 end

@@ -8,4 +8,8 @@ defmodule Test.Euphony.Case do
   end
 end
 
+# This starts the multix cache
+# TODO have multix be better about its cache
+Euphony.Math.add(1,1)
+
 ExUnit.start()

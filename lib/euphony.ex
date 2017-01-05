@@ -4,19 +4,15 @@ defmodule Euphony do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
-      import unquote(__MODULE__).Event, only: [event: 0, event: 1]
-      import unquote(__MODULE__).{Tempo}
+      import unquote(__MODULE__).Event, only: [event: 0, event: 1, event_props: 2]
+      import unquote(__MODULE__).Chord, only: [chord: 1]
+      import unquote(__MODULE__).Scale, only: [scale: 1]
+      import unquote(__MODULE__).Tuning, only: [tuning: 1]
+      import unquote(__MODULE__).{Tempo,HSeq,VSeq}
       use Euphony.Math
       use Multix
+      import Nile.Random
     end
-  end
-
-  def hseq(elements \\ []) do
-    %Euphony.HSeq{elements: elements}
-  end
-
-  def vseq(elements \\ []) do
-    %Euphony.VSeq{elements: elements}
   end
 
   @doc """
@@ -89,17 +85,29 @@ defmodule Euphony do
   Flatten the sequence into a list of events with a start offset
   """
 
-  defmulti sequence(seq, start)
-
-  @doc """
-  Lazy unify values into the children
-  """
-
-  defmulti cascade(a, b)
+  defmulti sequence(seq, offset)
 
   @doc """
   Shift values in a unit direction
   """
 
   defmulti shift(value, units)
+
+  @doc """
+
+  """
+
+  defmulti rotr90(value)
+
+  @doc """
+
+  """
+
+  defmulti rotl90(value)
+
+  @doc """
+
+  """
+
+  defmulti rot180(value)
 end
